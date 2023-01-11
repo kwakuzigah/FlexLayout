@@ -57,12 +57,25 @@ class Main extends React.Component {
             return <div className="tab_content">{node.getName()}</div>;
         }
     }
+    
+    tabExtraActions = [{
+        content: <div>test</div>,
+        key: 'switchImage'
+    }];     
+    handleOnAction = (action) => {
+        // alert(JSON.stringify(action))
+        return action;
+    };
 
     render() {
         return (
             <FlexLayout.Layout
                 model={this.state.model}
-                factory={this.factory}/>
+                factory={this.factory}
+                tabExtraActions={this.tabExtraActions}
+                // onRenderTab={onRenderTab}
+                onAction={this.handleOnAction}
+                scale={1}/>
         );
     }
 }

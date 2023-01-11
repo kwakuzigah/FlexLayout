@@ -1,11 +1,10 @@
 import * as React from "react";
-import { I18nLabel } from "../I18nLabel";
+// import { I18nLabel } from "../I18nLabel";
 import { Actions } from "../model/Actions";
 import { TabNode } from "../model/TabNode";
 import { TabSetNode } from "../model/TabSetNode";
 import { Rect } from "../Rect";
 import { IconFactory, IIcons, ILayoutCallbacks, TitleFactory } from "./Layout";
-import { ICloseType } from "../model/ICloseType";
 import { CLASSES } from "../Types";
 import { getRenderStateEx, isAuxMouseEvent } from "./Utils";
 
@@ -22,16 +21,15 @@ export interface ITabButtonProps {
 
 /** @internal */
 export const TabButton = (props: ITabButtonProps) => {
-    const { layout, node, selected, iconFactory, titleFactory, icons, path } = props;
+    const { layout, node, selected, iconFactory, titleFactory, path } = props;
     const selfRef = React.useRef<HTMLDivElement | null>(null);
     const contentRef = React.useRef<HTMLInputElement | null>(null);
 
-    const onMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent> | React.TouchEvent<HTMLDivElement>) => {
-
-        if (!isAuxMouseEvent(event) && !layout.getEditingTab()) {
-            layout.dragStart(event, undefined, node, node.isEnableDrag(), onClick, onDoubleClick);
-        }
-    };
+    // const onMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent> | React.TouchEvent<HTMLDivElement>) => {
+    //     if (!isAuxMouseEvent(event) && !layout.getEditingTab()) {
+    //         layout.dragStart(event, undefined, node, node.isEnableDrag(), onClick, onDoubleClick);
+    //     }
+    // };
 
     const onAuxMouseClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         if (isAuxMouseEvent(event)) {
@@ -43,21 +41,21 @@ export const TabButton = (props: ITabButtonProps) => {
         layout.showContextMenu(node, event);
     };
 
-    const onClick = () => {
-        layout.doAction(Actions.selectTab(node.getId()));
-    };
+    // const onClick = () => {
+    //     layout.doAction(Actions.selectTab(node.getId()));
+    // };
 
-    const onDoubleClick = (event: Event) => {
-        if (node.isEnableRename()) {
-            onRename();
-        }
-    };
+    // const onDoubleClick = (event: Event) => {
+    //     if (node.isEnableRename()) {
+    //         onRename();
+    //     }
+    // };
 
-    const onRename = () => {
-        layout.setEditingTab(node);
-        layout.getCurrentDocument()!.body.addEventListener("mousedown", onEndEdit);
-        layout.getCurrentDocument()!.body.addEventListener("touchstart", onEndEdit);
-    };
+    // const onRename = () => {
+    //     layout.setEditingTab(node);
+    //     layout.getCurrentDocument()!.body.addEventListener("mousedown", onEndEdit);
+    //     layout.getCurrentDocument()!.body.addEventListener("touchstart", onEndEdit);
+    // };
 
     const onEndEdit = (event: Event) => {
         if (event.target !== contentRef.current!) {
@@ -67,31 +65,31 @@ export const TabButton = (props: ITabButtonProps) => {
         }
     };
 
-    const isClosable = () => {
-        const closeType = node.getCloseType();
-        if (selected || closeType === ICloseType.Always) {
-            return true;
-        }
-        if (closeType === ICloseType.Visible) {
-            // not selected but x should be visible due to hover
-            if (window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
-                return true;
-            }
-        }
-        return false;
-    };
+    // const isClosable = () => {
+    //     const closeType = node.getCloseType();
+    //     if (selected || closeType === ICloseType.Always) {
+    //         return true;
+    //     }
+    //     if (closeType === ICloseType.Visible) {
+    //         // not selected but x should be visible due to hover
+    //         if (window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // };
 
-    const onClose = (event: React.MouseEvent<HTMLDivElement>) => {
-        if (isClosable()) {
-            layout.doAction(Actions.deleteTab(node.getId()));
-        } else {
-            onClick();
-        }
-    };
+    // const onClose = (event: React.MouseEvent<HTMLDivElement>) => {
+    //     if (isClosable()) {
+    //         layout.doAction(Actions.deleteTab(node.getId()));
+    //     } else {
+    //         onClick();
+    //     }
+    // };
 
-    const onCloseMouseDown = (event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
-        event.stopPropagation();
-    };
+    // const onCloseMouseDown = (event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
+    //     event.stopPropagation();
+    // };
 
     React.useLayoutEffect(() => {
         updateRect();
@@ -168,33 +166,43 @@ export const TabButton = (props: ITabButtonProps) => {
             />
         );
     }
+    // renderState.buttons.push(
+    //     <div
+    //         key="drag"
+    //         data-layout-path={path + "/button/drag"}
+    //         style={{transform: `scale(${1/layout.getScale()}, ${1/layout.getScale()})`}}
+    //         className={cm(CLASSES.FLEXLAYOUT__TAB_BUTTON_DRAG)}
+    //         onMouseDown={onMouseDown}
+    //         onTouchStart={onMouseDown}>
+    //             {(typeof icons.drag === "function") ? icons.drag(node) : icons.drag}
+    //     </div>
+    // );
 
-    if (node.isEnableClose()) {
-        const closeTitle = layout.i18nName(I18nLabel.Close_Tab);
-        renderState.buttons.push(
-            <div
-                key="close"
-                data-layout-path={path + "/button/close"}
-                title={closeTitle}
-                className={cm(CLASSES.FLEXLAYOUT__TAB_BUTTON_TRAILING)}
-                onMouseDown={onCloseMouseDown}
-                onClick={onClose}
-                onTouchStart={onCloseMouseDown}>
-                {(typeof icons.close === "function") ? icons.close(node) : icons.close}
-            </div>
-        );
-    }
+    // if (node.isEnableClose()) {
+    //     const closeTitle = layout.i18nName(I18nLabel.Close_Tab);
+    //     renderState.buttons.push(
+    //         <div
+    //             key="close"
+    //             data-layout-path={path + "/button/close"}
+    //             title={closeTitle}
+    //             style={{transform: `scale(${1/layout.getScale()}, ${1/layout.getScale()})`}}
+    //             className={cm(CLASSES.FLEXLAYOUT__TAB_BUTTON_CLOSE)}
+    //             onMouseDown={onCloseMouseDown}
+    //             onClick={onClose}
+    //             onTouchStart={onCloseMouseDown}>
+    //             {(typeof icons.close === "function") ? icons.close(node) : icons.close}
+    //         </div>
+    //     );
+    // }
 
     return (
         <div
             ref={selfRef}
             data-layout-path={path}
             className={classNames}
-            onMouseDown={onMouseDown}
             onClick={onAuxMouseClick}
             onAuxClick={onAuxMouseClick}
             onContextMenu={onContextMenu}
-            onTouchStart={onMouseDown}
             title={node.getHelpText()}
         >
             {leading}

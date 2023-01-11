@@ -9,6 +9,7 @@ import { ErrorBoundary } from "./ErrorBoundary";
 import { I18nLabel } from "../I18nLabel";
 import { BorderNode } from "../model/BorderNode";
 import { hideElement } from "./Utils";
+// import { Action } from "../model/Action";
 
 /** @internal */
 export interface ITabProps {
@@ -32,13 +33,17 @@ export const Tab = (props: ITabProps) => {
         }
     });
 
-    const onMouseDown = () => {
-        const parent = node.getParent() as TabSetNode;
-        if (parent.getType() === TabSetNode.TYPE) {
-            if (!parent.isActive()) {
-                layout.doAction(Actions.setActiveTabset(parent.getId()));
-            }
-        }
+    // const onMouseDown = () => {
+    //     const parent = node.getParent() as TabSetNode;
+    //     if (parent.getType() === TabSetNode.TYPE) {
+    //         if (!parent.isActive()) {
+    //             layout.doAction(Actions.setActiveTabset(parent.getId()));
+    //         }
+    //     }
+    // };
+
+    const onDragStart = (event: React.MouseEvent<HTMLDivElement, MouseEvent> | React.TouchEvent<HTMLDivElement>) => {
+        layout.dragStart(event, undefined, node, node.isEnableDrag(), undefined, undefined);
     };
 
     const cm = layout.getClassName;
@@ -67,13 +72,51 @@ export const Tab = (props: ITabProps) => {
         className += " " + cm(CLASSES.FLEXLAYOUT__TAB_BORDER_ + parentNode.getLocation().getName());
     }
 
+    const onCloseMouseDown = (event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
+        event.stopPropagation();
+    };
+
+    const onClose = (event: React.MouseEvent<HTMLDivElement>) => {
+        layout.doAction(Actions.deleteTab(node.getId()));
+    };
+    const tabActions = layout.getTabActions();
+
+    // const onExtraActionClick = (key: string) => {
+    //     console.log('onExtratActionclick')
+    //     layout.doAction(new Action(key, {nodeId: node.getId()}));
+    // };
+
     return (
         <div
             className={className}
             data-layout-path={path}
-            onMouseDown={onMouseDown}
-            onTouchStart={onMouseDown}
+            // onMouseDown={onMouseDown}
+            // onTouchStart={onMouseDown}
             style={style}>
+            <div className="tab_actions"
+                    style={{ transformOrigin: 'top right', transform: `scale(${1 / layout.getScale()}, ${1 / layout.getScale()})` }}>
+                <div
+                    className={cm(CLASSES.FLEXLAYOUT__TAB_BUTTON_DRAG)}
+                    onMouseDown={onDragStart}
+                    onTouchStart={onDragStart}>
+                    {tabActions.move}
+                </div>
+                {/* {
+                layout.getTabExtraActions().map(tabExtraAction => 
+                    <div className="tab-extra-action" key={tabExtraAction.key} 
+                        onClick={() => onExtraActionClick(tabExtraAction.key)}
+                        onMouseDown={() => onExtraActionClick(tabExtraAction.key)}>
+                        {tabExtraAction.content}
+                    </div>
+                )} */}
+                <div
+                    className={cm(CLASSES.FLEXLAYOUT__TAB_BUTTON_CLOSE)}
+                    onMouseDown={onCloseMouseDown}
+                    onClick={onClose}
+                    onTouchStart={onCloseMouseDown}>
+                    {tabActions.close}
+                </div>
+            </div>
             <ErrorBoundary message={props.layout.i18nName(I18nLabel.Error_rendering_component)}>
                 <Fragment>{child}</Fragment>
             </ErrorBoundary>

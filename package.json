@@ -21,6 +21,7 @@
     "scripts": {
         "start": "webpack serve",
         "build": "npm run css && npm run test && npm run doc && npm run build:demo && npm run build:commonjs && npm run build:umd && npm run build:umd:min",
+        "build:lib": "npm run css && npm run build:commonjs && npm run build:umd && npm run build:umd:min",
         "build:commonjs": "tsc -p tsconfig2.json",
         "build:umd": "webpack --mode=development --config webpack_build.config.js",
         "build:umd:min": "webpack --mode=production --config webpack_build_min.config.js",
@@ -43,7 +44,7 @@
         "extends": "react-app"
     },
     "devDependencies": {
-        "@cypress/react": "^5.12.4",
+        "@cypress/react18": "^2.0.0",
         "@cypress/webpack-dev-server": "^1.8.4",
         "@types/node": "^17.0.24",
         "@types/prismjs": "^1.26.0",

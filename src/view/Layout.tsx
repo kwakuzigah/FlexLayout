@@ -26,7 +26,7 @@ import { FloatingWindowTab } from "./FloatingWindowTab";
 import { TabFloating } from "./TabFloating";
 import { IJsonTabNode } from "../model/IJsonModel";
 import { Orientation } from "../Orientation";
-import { CloseIcon, MaximizeIcon, OverflowIcon, PopoutIcon, RestoreIcon } from "./Icons";
+import { CloseIcon, DragIcon, MaximizeIcon, OverflowIcon, PopoutIcon, RestoreIcon } from "./Icons";
 import { TabButtonStamp } from "./TabButtonStamp";
 
 export type CustomDragCallback = (dragging: TabNode | IJsonTabNode, over: TabNode, x: number, y: number, location: DockLocation) => void;
@@ -48,9 +48,12 @@ export interface ILayoutProps {
     factory: (node: TabNode) => React.ReactNode;
     font?: IFontValues;
     fontFamily?: string;
+    scale?: number;
     iconFactory?: IconFactory;
     titleFactory?: TitleFactory;
     icons?: IIcons;
+    tabActions?: ITabActions;
+    tabExtraActions?: ITabExtraAction[];
     onAction?: (action: Action) => Action | undefined;
     onRenderTab?: (
         node: TabNode,
@@ -71,6 +74,7 @@ export interface ILayoutProps {
     supportsPopout?: boolean | undefined;
     popoutURL?: string | undefined;
     realtimeResize?: boolean | undefined;
+    customTabPositioning?: boolean | undefined;
     onTabDrag?: (dragging: TabNode | IJsonTabNode, over: TabNode, x: number, y: number, location: DockLocation, refresh: () => void) => undefined | {
         x: number,
         y: number,
@@ -94,7 +98,10 @@ export interface IFontValues {
     style?: string;
     weight?: string;
 }
-
+export interface ITabExtraAction {
+    key: string;
+    content?: React.ReactNode;
+}
 export interface ITabSetRenderValues {
     headerContent?: React.ReactNode;
     centerContent?: React.ReactNode;
@@ -108,6 +115,11 @@ export interface ITabRenderValues {
     content: React.ReactNode;
     name: string;
     buttons: React.ReactNode[];
+}
+
+export interface ITabActions {
+    close?: React.ReactNode;
+    move?: React.ReactNode;
 }
 
 export interface ITitleObject {
@@ -127,6 +139,7 @@ export interface ILayoutState {
 }
 
 export interface IIcons {
+    drag?: (React.ReactNode | ((tabNode: TabNode) => React.ReactNode));
     close?: (React.ReactNode | ((tabNode: TabNode) => React.ReactNode));
     closeTabset?: (React.ReactNode | ((tabSetNode: TabSetNode) => React.ReactNode));
     popout?: (React.ReactNode | ((tabNode: TabNode) => React.ReactNode));
@@ -136,6 +149,7 @@ export interface IIcons {
 }
 
 const defaultIcons = {
+    drag: <DragIcon />,
     close: <CloseIcon />,
     closeTabset: <CloseIcon />,
     popout: <PopoutIcon />,
@@ -163,6 +177,10 @@ export interface ILayoutCallbacks {
     getPopoutURL(): string;
     isSupportsPopout(): boolean;
     isRealtimeResize(): boolean;
+    isCustomTabPositioning(): boolean;
+    getScale(): number;
+    getTabActions(): ITabActions;
+    getTabExtraActions(): ITabExtraAction[];
     getCurrentDocument(): HTMLDocument | undefined;
     getClassName(defaultClassName: string): string;
     doAction(action: Action): Node | undefined;
@@ -267,6 +285,10 @@ export class Layout extends React.Component<ILayoutProps, ILayoutState> {
     /** @internal */
     private icons: IIcons;
     /** @internal */
+    private tabActions: ITabActions;
+    /** @internal */
+    private tabExtraActions: ITabExtraAction[];
+    /** @internal */
     private resizeObserver?: ResizeObserver;
 
     constructor(props: ILayoutProps) {
@@ -280,6 +302,8 @@ export class Layout extends React.Component<ILayoutProps, ILayoutState> {
         this.supportsPopout = props.supportsPopout !== undefined ? props.supportsPopout : defaultSupportsPopout;
         this.popoutURL = props.popoutURL ? props.popoutURL : "popout.html";
         this.icons = { ...defaultIcons, ...props.icons };
+        this.tabActions = {...props.tabActions};
+        this.tabExtraActions = props.tabExtraActions ?? [];
 
         this.state = {
             rect: new Rect(0, 0, 0, 0),
@@ -428,6 +452,16 @@ export class Layout extends React.Component<ILayoutProps, ILayoutState> {
     }
 
     /** @internal */
+    getScale() {
+        return this.props.scale ?? 1;
+    }
+
+    /** @internal */
+    isCustomTabPositioning() {
+        return this.props.customTabPositioning ?? false;
+    }
+
+    /** @internal */
     onTabDrag(...args: Parameters<Required<ILayoutProps>['onTabDrag']>) {
         return this.props.onTabDrag?.(...args);
     }
@@ -450,6 +484,16 @@ export class Layout extends React.Component<ILayoutProps, ILayoutState> {
     /** @internal */
     getEditingTab() {
         return this.state.editingTab;
+    }
+
+    /** @internal */
+    getTabActions() {
+        return this.tabActions;
+    }
+
+    /** @internal */
+    getTabExtraActions(): ITabExtraAction[] {
+        return this.tabExtraActions;
     }
 
     /** @internal */
@@ -940,10 +984,11 @@ export class Layout extends React.Component<ILayoutProps, ILayoutState> {
         }
         this.firstMove = false;
         const clientRect = this.selfRef.current!.getBoundingClientRect();
-        const pos = {
-            x: event.clientX - clientRect.left,
-            y: event.clientY - clientRect.top,
+        const pos = {   
+            x: (event.clientX - clientRect.left)/this.getScale(),
+            y: (event.clientY - clientRect.top)/this.getScale(),
         };
+        console.log(`here in this.props.scale ${this.props.scale}`)
 
         this.checkForBorderToShow(pos.x, pos.y);
 

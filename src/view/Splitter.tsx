@@ -56,8 +56,8 @@ export const Splitter = (props: ISplitterProps) => {
     const onDragMove = (event: React.MouseEvent<Element, MouseEvent>) => {
         const clientRect = layout.getDomRect();
         const pos = {
-            x: event.clientX - clientRect.left,
-            y: event.clientY - clientRect.top,
+            x: (event.clientX - clientRect.left)/layout.getScale(),
+            y: (event.clientY - clientRect.top)/layout.getScale()
         };
 
         if (outlineDiv) {

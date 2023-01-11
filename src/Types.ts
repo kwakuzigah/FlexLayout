@@ -75,6 +75,8 @@ export enum CLASSES {
     FLEXLAYOUT__TAB_BUTTON_TEXTBOX = "flexlayout__tab_button_textbox",
     FLEXLAYOUT__TAB_BUTTON_TRAILING = "flexlayout__tab_button_trailing",
     FLEXLAYOUT__TAB_BUTTON_STAMP = "flexlayout__tab_button_stamp",
+    FLEXLAYOUT__TAB_BUTTON_DRAG = "flexlayout__tab_button_drag",
+    FLEXLAYOUT__TAB_BUTTON_CLOSE = "flexlayout__tab_button_close",
 
     FLEXLAYOUT__TAB_FLOATING = "flexlayout__tab_floating",
     FLEXLAYOUT__TAB_FLOATING_INNER = "flexlayout__tab_floating_inner",
